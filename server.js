@@ -74,13 +74,23 @@ function verifyTelegramInitData(raw) {
   const params = new URLSearchParams(raw);
   const receivedHash = params.get('hash');
   if (!receivedHash || !/^[a-f0-9]{64}$/i.test(receivedHash)) throw httpError(401, 'Telegram sign-in data is missing or invalid.');
-  params.delete('hash');
-  const dataCheckString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('\n');
-  const secretKey = crypto.createHmac('sha256', process.env.BOT_TOKEN).update('WebAppData').digest();
-  const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+ params.delete('hash');
+ params.delete('signature');
+
+const dataCheckString = [...params.entries()]
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([key, value]) => `${key}=${value}`)
+  .join('\n');
+
+const secretKey = crypto
+  .createHmac('sha256', 'WebAppData')
+  .update(process.env.BOT_TOKEN)
+  .digest();
+
+const calculatedHash = crypto
+  .createHmac('sha256', secretKey)
+  .update(dataCheckString)
+  .digest('hex');
   const a = Buffer.from(calculatedHash, 'hex');
   const b = Buffer.from(receivedHash, 'hex');
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw httpError(401, 'Telegram sign-in could not be verified. Reopen the app.');

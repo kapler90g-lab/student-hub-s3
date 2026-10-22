@@ -12,7 +12,7 @@
       button.classList.toggle('active', active);
       button.setAttribute('aria-selected', String(active));
     });
-    document.querySelectorAll('[data-tab-panel]').forEach(panel => panel.classList.toggle('hidden', panel.dataset.tabPanel !== name));
+    document.querySelectorAll('[data-tab-panel]').forEach(panel => panel.classList.toggle('tab-hidden', panel.dataset.tabPanel !== name));
     if (name === 'timetable') document.querySelector('#timetable-section')?.scrollIntoView({behavior:'smooth',block:'start'});
     else document.querySelector('[data-tab-panel="' + name + '"]')?.scrollIntoView({behavior:'smooth',block:'start'});
   }

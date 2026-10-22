@@ -139,6 +139,38 @@ function requireRep(req, res, next) {
   next();
 }
 
+async function registerStudent(user) {
+  const now = new Date().toISOString();
+  const { data: existing, error: readError } = await supabase
+    .from('student_roster').select('telegram_id, registered_at')
+    .eq('telegram_id', user.id).maybeSingle();
+  if (readError) throw readError;
+  if (existing) {
+    const { error } = await supabase.from('student_roster').update({
+      telegram_first_name: user.first_name,
+      username: user.username,
+      last_seen_at: now,
+      registered_at: existing.registered_at || now
+    }).eq('telegram_id', user.id);
+    if (error) throw error;
+    return;
+  }
+  const { error } = await supabase.from('student_roster').insert({
+    telegram_id: user.id,
+    telegram_first_name: user.first_name,
+    username: user.username,
+    registered_at: now,
+    last_seen_at: now,
+    expected: false
+  });
+  if (error && error.code === '23505') {
+    const { error: updateError } = await supabase.from('student_roster').update({
+      telegram_first_name: user.first_name, username: user.username, last_seen_at: now
+    }).eq('telegram_id', user.id);
+    if (updateError) throw updateError;
+  } else if (error) throw error;
+}
+
 function cleanText(value, max, field) {
   if (typeof value !== 'string') throw httpError(400, `${field} is required.`);
   const text = value.trim();
@@ -187,6 +219,8 @@ app.get('/api/health', (_req, res) => res.json({ ok: true, app: 'Student Hub' })
 
 app.get('/api/bootstrap', auth, async (req, res) => {
   try {
+    try { await registerStudent(req.viewer); }
+    catch (rosterError) { console.error('Student roster tracking unavailable; run the student roster migration:', rosterError.message); }
     const now = new Date().toISOString();
     const [subjectsRes, announcementsRes, resourcesRes] = await Promise.all([
       supabase.from('subjects').select('*').eq('active', true).order('sort_order').order('name'),
@@ -204,6 +238,54 @@ app.get('/api/bootstrap', auth, async (req, res) => {
       announcements: announcementsRes.data || [],
       resources
     });
+  } catch (err) { handleError(res, err); }
+});
+
+
+app.get('/api/students', auth, requireRep, async (_req, res) => {
+  try {
+    const { data, error } = await supabase.from('student_roster')
+      .select('telegram_id, full_name, telegram_first_name, username, expected, registered_at, last_seen_at, created_at')
+      .order('expected', { ascending: false }).order('full_name', { ascending: true });
+    if (error) throw error;
+    const students = data || [];
+    const expected = students.filter(s => s.expected);
+    res.json({
+      students,
+      summary: {
+        expected: expected.length,
+        used: expected.filter(s => Boolean(s.registered_at)).length,
+        not_used: expected.filter(s => !s.registered_at).length,
+        other_accounts: students.filter(s => !s.expected).length
+      }
+    });
+  } catch (err) { handleError(res, err); }
+});
+
+app.post('/api/students', auth, requireRep, async (req, res) => {
+  try {
+    const full_name = cleanText(req.body.full_name, 120, 'Student name');
+    const telegram_id = cleanText(String(req.body.telegram_id || ''), 20, 'Telegram ID');
+    if (!/^\d{5,20}$/.test(telegram_id)) throw httpError(400, 'Enter the numeric Telegram user ID, not a username.');
+    const { data: existing, error: readError } = await supabase.from('student_roster')
+      .select('telegram_id, registered_at, last_seen_at, telegram_first_name, username')
+      .eq('telegram_id', telegram_id).maybeSingle();
+    if (readError) throw readError;
+    let data;
+    if (existing) {
+      const { data: updated, error } = await supabase.from('student_roster').update({
+        full_name, expected: true, added_by: Number(req.viewer.id)
+      }).eq('telegram_id', telegram_id).select('*').single();
+      if (error) throw error;
+      data = updated;
+    } else {
+      const { data: inserted, error } = await supabase.from('student_roster').insert({
+        telegram_id, full_name, expected: true, added_by: Number(req.viewer.id)
+      }).select('*').single();
+      if (error) throw error;
+      data = inserted;
+    }
+    res.status(201).json({ student: data });
   } catch (err) { handleError(res, err); }
 });
 

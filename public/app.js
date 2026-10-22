@@ -2,6 +2,33 @@
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
   const $ = (selector) => document.querySelector(selector);
+
+  // Keep each main section separate without tearing down rendered state.
+  const mainTabNames = ['announcements', 'timetable', 'subjects', 'search'];
+  function activateMainTab(name, shouldScroll = false) {
+    if (!mainTabNames.includes(name)) return;
+    document.querySelectorAll('[data-main-tab]').forEach(button => {
+      const active = button.dataset.mainTab === name;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    document.querySelectorAll('[data-tab-panel]').forEach(panel => panel.classList.toggle('tab-hidden', panel.dataset.tabPanel !== name));
+    if (shouldScroll) document.querySelector('[data-tab-panel="' + name + '"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.addEventListener('click', event => {
+    const button = event.target instanceof Element ? event.target.closest('[data-main-tab]') : null;
+    if (button) activateMainTab(button.dataset.mainTab, true);
+  });
+  const mainTabButtons = [...document.querySelectorAll('[data-main-tab]')];
+  mainTabButtons.forEach((button, index) => button.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? mainTabButtons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + mainTabButtons.length) % mainTabButtons.length;
+    mainTabButtons[next].focus();
+    activateMainTab(mainTabButtons[next].dataset.mainTab);
+  }));
+  activateMainTab('announcements');
   const state = { viewer: null, subjects: [], announcements: [], resources: [], selectedSubject: 'all', query: '', type: 'all' };
   const priorityRank = { urgent: 0, important: 1, normal: 2 };
   let toastTimer;
@@ -49,11 +76,12 @@
     const subjectFilter = $('#subject-filter');
     const current = subjectFilter.value || 'all';
     subjectFilter.innerHTML = `<option value="all">All subjects</option>` + state.subjects.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
-    subjectFilter.value = state.subjects.some(s => s.id === current) || current === 'all' ? current : 'all';
+    subjectFilter.value = state.subjects.some(s => String(s.id) === String(current)) || current === 'all' ? current : 'all';
     $('#announcement-subject').innerHTML = `<option value="">General / all subjects</option>` + state.subjects.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
     $('#resource-subject').innerHTML = state.subjects.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
-    grid.innerHTML = state.subjects.length ? state.subjects.map(s => {
-      const count = state.resources.filter(r => r.subject_id === s.id).length;
+    const orderedSubjects = [...state.subjects].sort((a, b) => Number(a.sort_order || 0) - Number(b.sort_order || 0) || String(a.name || '').localeCompare(String(b.name || '')));
+    grid.innerHTML = orderedSubjects.length ? orderedSubjects.map(s => {
+      const count = state.resources.filter(r => String(r.subject_id) === String(s.id)).length;
       return `<button type="button" class="subject-tile ${state.selectedSubject === s.id ? 'selected' : ''}" data-subject="${escapeHtml(s.id)}">
         <span class="subject-emoji">${escapeHtml(s.emoji || '📚')}</span><span><strong>${escapeHtml(s.name)}</strong><small>${count} ${count === 1 ? 'resource' : 'resources'}</small></span></button>`;
     }).join('') : '<div class="empty-state">No subjects yet. A representative can add the class subjects.</div>';

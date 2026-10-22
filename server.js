@@ -74,13 +74,14 @@ function verifyTelegramInitData(raw) {
   const params = new URLSearchParams(raw);
   const receivedHash = params.get('hash');
   if (!receivedHash || !/^[a-f0-9]{64}$/i.test(receivedHash)) throw httpError(401, 'Telegram sign-in data is missing or invalid.');
- params.delete('hash');
- params.delete('signature');
+  // Telegram's HMAC check string excludes only "hash". Keep "signature"
+  // when present; it is excluded for the separate third-party Ed25519 flow.
+  params.delete('hash');
 
-const dataCheckString = [...params.entries()]
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([key, value]) => `${key}=${value}`)
-  .join('\n');
+  const dataCheckString = [...params.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([key, value]) => `${key}=${value}`)
+    .join('\\n');
 
 const secretKey = crypto
   .createHmac('sha256', 'WebAppData')

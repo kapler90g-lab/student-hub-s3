@@ -41,6 +41,11 @@
       if (schedule[ri] && Number.isInteger(di)) schedule[ri].lessons[di] = input.value.trim();
     });
   }
+  $('#timetable-toggle').addEventListener('click', () => {
+    const panel = $('#timetable-section');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) panel.scrollIntoView({behavior:'smooth',block:'start'});
+  });
   $('#timetable-edit').addEventListener('click', () => { editing = true; render(); });
   $('#timetable-cancel').addEventListener('click', async () => { editing = false; await load(); });
   $('#timetable-save').addEventListener('click', async () => {
@@ -60,9 +65,7 @@
       isRep = Boolean(result.viewer?.is_rep);
       render();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not load timetable.';
-      $('#timetable-status').textContent = message;
-      $('#timetable-table').innerHTML = '<tbody><tr><td class="timetable-error">' + escapeHtml(message) + '</td></tr></tbody>';
+      $('#timetable-table').innerHTML = '<tbody><tr><td class="timetable-error">' + escapeHtml(error.message) + '</td></tr></tbody>';
       $('#timetable-edit').classList.add('hidden'); $('#timetable-save').classList.add('hidden'); $('#timetable-cancel').classList.add('hidden');
     }
   }

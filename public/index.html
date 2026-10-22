@@ -36,6 +36,16 @@
         <div id="priority-feed" class="priority-feed"><div class="empty-state">Loading announcements…</div></div>
       </section>
 
+      <section class="section timetable-entry"><button id="timetable-toggle" class="primary-button timetable-open-button" type="button">Timetable</button></section>
+
+      <section id="timetable-section" class="section timetable-section hidden">
+        <div class="section-heading"><div><p class="eyebrow">CLASS SCHEDULE</p><h2>Weekly timetable</h2></div><span class="count-pill">MON–FRI</span></div>
+        <p id="timetable-status" class="muted timetable-status">Loading timetable…</p>
+        <div class="timetable-toolbar"><button id="timetable-edit" class="secondary-button hidden" type="button">Edit timetable</button><button id="timetable-cancel" class="secondary-button hidden" type="button">Cancel</button><button id="timetable-save" class="primary-button hidden" type="button">Save timetable</button></div>
+        <div class="timetable-scroll"><table id="timetable-table" class="timetable-table" aria-label="Weekly class timetable"><tbody><tr><td>Loading timetable…</td></tr></tbody></table></div>
+        <p class="small-note">The class representative can correct any entry. Empty cells mean no class was provided for that period.</p>
+      </section>
+
       <section class="section">
         <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>Subjects</h2></div></div>
         <div id="subject-list" class="subject-grid"></div>

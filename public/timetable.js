@@ -60,7 +60,9 @@
       isRep = Boolean(result.viewer?.is_rep);
       render();
     } catch (error) {
-      $('#timetable-table').innerHTML = '<tbody><tr><td class="timetable-error">' + escapeHtml(error.message) + '</td></tr></tbody>';
+      const message = error instanceof Error ? error.message : 'Could not load timetable.';
+      $('#timetable-status').textContent = message;
+      $('#timetable-table').innerHTML = '<tbody><tr><td class="timetable-error">' + escapeHtml(message) + '</td></tr></tbody>';
       $('#timetable-edit').classList.add('hidden'); $('#timetable-save').classList.add('hidden'); $('#timetable-cancel').classList.add('hidden');
     }
   }

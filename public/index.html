@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script defer src="/app.js"></script>
+  <script defer src="/features.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -37,6 +38,29 @@
       <section class="section">
         <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>Subjects</h2></div></div>
         <div id="subject-list" class="subject-grid"></div>
+      </section>
+
+      <section id="subject-detail" class="section subject-detail hidden" aria-live="polite">
+        <div class="folder-header"><button id="close-subject" class="secondary-button" type="button">← All subjects</button><div><p class="eyebrow">SUBJECT FOLDER</p><h2 id="folder-title">Subject</h2><p id="folder-summary" class="muted"></p></div></div>
+        <div id="folder-tabs" class="folder-tabs" role="tablist" aria-label="Subject sections">
+          <button type="button" class="folder-tab active" data-folder-tab="overview">Overview</button>
+          <button type="button" class="folder-tab" data-folder-tab="announcements">Announcements</button>
+          <button type="button" class="folder-tab" data-folder-tab="materials">Materials</button>
+          <button type="button" class="folder-tab" data-folder-tab="assignments">Assignments & deadlines</button>
+          <button type="button" class="folder-tab" data-folder-tab="past_paper">Past papers</button>
+        </div>
+        <div id="folder-content" class="folder-content"></div>
+      </section>
+
+      <section id="deadline-section" class="section">
+        <div class="section-heading"><div><p class="eyebrow">STAY ON TRACK</p><h2>Assignments & deadlines</h2></div><span id="deadline-count" class="count-pill">0</span></div>
+        <div id="deadline-list" class="announcement-list"></div>
+      </section>
+
+      <section id="revision-section" class="section">
+        <div class="section-heading"><div><p class="eyebrow">YOUR STUDY SPACE</p><h2>Saved for revision</h2></div><span id="saved-count" class="count-pill">0</span></div>
+        <p class="muted workspace-hint">Bookmark important announcements and materials to keep them here on this device.</p>
+        <div id="saved-list" class="resource-list"></div>
       </section>
 
       <section class="section">

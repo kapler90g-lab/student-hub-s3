@@ -41,6 +41,11 @@
       if (schedule[ri] && Number.isInteger(di)) schedule[ri].lessons[di] = input.value.trim();
     });
   }
+  $('#timetable-toggle').addEventListener('click', () => {
+    const panel = $('#timetable-section');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) panel.scrollIntoView({behavior:'smooth',block:'start'});
+  });
   $('#timetable-edit').addEventListener('click', () => { editing = true; render(); });
   $('#timetable-cancel').addEventListener('click', async () => { editing = false; await load(); });
   $('#timetable-save').addEventListener('click', async () => {

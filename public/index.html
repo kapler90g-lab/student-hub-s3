@@ -31,14 +31,19 @@
       <div id="error-banner" class="error-banner hidden" role="alert"></div>
       <div id="status-banner" class="status-banner hidden" role="status"></div>
 
-      <section class="priority-section">
+      <nav class="main-tabs" role="tablist" aria-label="Main sections">
+        <button type="button" class="main-tab active" role="tab" aria-selected="true" data-main-tab="announcements"><span aria-hidden="true">📢</span><span>Announcements</span></button>
+        <button type="button" class="main-tab" role="tab" aria-selected="false" data-main-tab="timetable"><span aria-hidden="true">🗓️</span><span>Timetable</span></button>
+        <button type="button" class="main-tab" role="tab" aria-selected="false" data-main-tab="subjects"><span aria-hidden="true">📚</span><span>Subjects</span></button>
+        <button type="button" class="main-tab" role="tab" aria-selected="false" data-main-tab="search"><span aria-hidden="true">⌕</span><span>Search</span></button>
+      </nav>
+
+      <section class="priority-section" data-tab-panel="announcements">
         <div class="section-heading"><div><p class="eyebrow">DON'T MISS</p><h2>Important updates</h2></div><span id="notice-count" class="count-pill">0</span></div>
         <div id="priority-feed" class="priority-feed"><div class="empty-state">Loading announcements…</div></div>
       </section>
 
-      <section class="section timetable-entry"><button id="timetable-toggle" class="primary-button timetable-open-button" type="button">Timetable</button></section>
-
-      <section id="timetable-section" class="section timetable-section hidden">
+      <section id="timetable-section" class="section timetable-section" data-tab-panel="timetable">
         <div class="section-heading"><div><p class="eyebrow">CLASS SCHEDULE</p><h2>Weekly timetable</h2></div><span class="count-pill">MON–FRI</span></div>
         <p id="timetable-status" class="muted timetable-status">Loading timetable…</p>
         <div class="timetable-toolbar"><button id="timetable-edit" class="secondary-button hidden" type="button">Edit timetable</button><button id="timetable-cancel" class="secondary-button hidden" type="button">Cancel</button><button id="timetable-save" class="primary-button hidden" type="button">Save timetable</button></div>
@@ -46,12 +51,12 @@
         <p class="small-note">The class representative can correct any entry. Empty cells mean no class was provided for that period.</p>
       </section>
 
-      <section class="section">
+      <section class="section" data-tab-panel="subjects">
         <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>Subjects</h2></div></div>
         <div id="subject-list" class="subject-grid"></div>
       </section>
 
-      <section id="subject-detail" class="section subject-detail hidden" aria-live="polite">
+      <section id="subject-detail" data-tab-panel="subjects" class="section subject-detail hidden" aria-live="polite">
         <div class="folder-header"><button id="close-subject" class="secondary-button" type="button">← All subjects</button><div><p class="eyebrow">SUBJECT FOLDER</p><h2 id="folder-title">Subject</h2><p id="folder-summary" class="muted"></p></div></div>
         <div id="folder-tabs" class="folder-tabs" role="tablist" aria-label="Subject sections">
           <button type="button" class="folder-tab active" data-folder-tab="overview">Overview</button>
@@ -63,18 +68,18 @@
         <div id="folder-content" class="folder-content"></div>
       </section>
 
-      <section id="deadline-section" class="section">
+      <section id="deadline-section" class="section" data-tab-panel="announcements">
         <div class="section-heading"><div><p class="eyebrow">STAY ON TRACK</p><h2>Assignments & deadlines</h2></div><span id="deadline-count" class="count-pill">0</span></div>
         <div id="deadline-list" class="announcement-list"></div>
       </section>
 
-      <section id="revision-section" class="section">
+      <section id="revision-section" class="section" data-tab-panel="subjects">
         <div class="section-heading"><div><p class="eyebrow">YOUR STUDY SPACE</p><h2>Saved for revision</h2></div><span id="saved-count" class="count-pill">0</span></div>
         <p class="muted workspace-hint">Bookmark important announcements and materials to keep them here on this device.</p>
         <div id="saved-list" class="resource-list"></div>
       </section>
 
-      <section class="section">
+      <section class="section" data-tab-panel="search">
         <div class="section-heading"><div><p class="eyebrow">LIBRARY</p><h2 id="library-title">Recent study materials</h2></div><span id="resource-count" class="count-pill">0</span></div>
         <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search notes, files, announcements…" autocomplete="off"><button id="clear-search" type="button" aria-label="Clear search">×</button></label>
         <div class="filter-row">
@@ -90,7 +95,7 @@
         <div id="resource-list" class="resource-list"><div class="empty-state">Loading materials…</div></div>
       </section>
 
-      <section class="section">
+      <section class="section" data-tab-panel="announcements">
         <div class="section-heading"><div><p class="eyebrow">NOTICEBOARD</p><h2>All announcements</h2></div></div>
         <div id="all-announcements" class="announcement-list"></div>
       </section>

@@ -207,6 +207,40 @@ app.get('/api/bootstrap', auth, async (req, res) => {
   } catch (err) { handleError(res, err); }
 });
 
+app.get('/api/timetable', auth, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('class_timetable').select('periods, updated_at').eq('id', 'class').maybeSingle();
+    if (error) throw error;
+    if (!data) throw httpError(503, 'The timetable has not been set up yet. Ask the representative to run the timetable migration.');
+    res.json({ timetable: data, viewer: { is_rep: req.viewer.isRep } });
+  } catch (err) { handleError(res, err); }
+});
+
+app.put('/api/timetable', auth, requireRep, async (req, res) => {
+  try {
+    const periods = req.body?.periods;
+    if (!Array.isArray(periods) || periods.length !== 8) throw httpError(400, 'The timetable must contain all 8 periods.');
+    const cleanPeriods = periods.map((period, index) => {
+      if (!period || typeof period.label !== 'string' || typeof period.time !== 'string' || !Array.isArray(period.lessons) || period.lessons.length !== 5) {
+        throw httpError(400, `Period ${index + 1} must include a label, time, and five weekday entries.`);
+      }
+      return {
+        label: cleanText(period.label, 30, 'Period label'),
+        time: cleanText(period.time, 40, 'Period time'),
+        lessons: period.lessons.map((lesson) => {
+          if (typeof lesson !== 'string' || lesson.length > 100) throw httpError(400, 'Each lesson must be text of at most 100 characters.');
+          return lesson.trim();
+        })
+      };
+    });
+    const { data, error } = await supabase.from('class_timetable').upsert({
+      id: 'class', periods: cleanPeriods, updated_by: Number(req.viewer.id), updated_at: new Date().toISOString()
+    }, { onConflict: 'id' }).select('periods, updated_at').single();
+    if (error) throw error;
+    res.json({ timetable: data });
+  } catch (err) { handleError(res, err); }
+});
+
 app.post('/api/announcements', auth, requireRep, async (req, res) => {
   try {
     const title = cleanText(req.body.title, 160, 'Title');

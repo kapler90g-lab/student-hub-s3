@@ -75,7 +75,6 @@ function verifyTelegramInitData(raw) {
   const receivedHash = params.get('hash');
   if (!receivedHash || !/^[a-f0-9]{64}$/i.test(receivedHash)) throw httpError(401, 'Telegram sign-in data is missing or invalid.');
   params.delete('hash');
-  params.delete('signature');
   const dataCheckString = [...params.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${key}=${value}`)

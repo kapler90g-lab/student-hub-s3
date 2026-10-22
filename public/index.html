@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Student Hub</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark">S</div>
+      <div class="brand-copy"><strong>Student Hub</strong><span>Your class, organized.</span></div>
+      <span id="role-pill" class="role-pill">Student</span>
+    </header>
+
+    <main>
+      <section class="welcome">
+        <div>
+          <p class="eyebrow">CLASS LEARNING CENTER</p>
+          <h1 id="welcome-title">Welcome back 👋</h1>
+          <p class="muted">Find the latest notices and study materials in one place.</p>
+        </div>
+      </section>
+
+      <div id="error-banner" class="error-banner hidden" role="alert"></div>
+      <div id="status-banner" class="status-banner hidden" role="status"></div>
+
+      <section class="priority-section">
+        <div class="section-heading"><div><p class="eyebrow">DON'T MISS</p><h2>Important updates</h2></div><span id="notice-count" class="count-pill">0</span></div>
+        <div id="priority-feed" class="priority-feed"><div class="empty-state">Loading announcements…</div></div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>Subjects</h2></div></div>
+        <div id="subject-list" class="subject-grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">LIBRARY</p><h2 id="library-title">Recent study materials</h2></div><span id="resource-count" class="count-pill">0</span></div>
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search notes, files, announcements…" autocomplete="off"><button id="clear-search" type="button" aria-label="Clear search">×</button></label>
+        <div class="filter-row">
+          <label class="filter-label">Subject
+            <select id="subject-filter"><option value="all">All subjects</option></select>
+          </label>
+          <label class="filter-label">Type
+            <select id="type-filter">
+              <option value="all">All materials</option><option value="notes">Notes</option><option value="slides">Slides</option><option value="assignment">Assignments</option><option value="past_paper">Past papers</option><option value="reading">Reading</option><option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div id="resource-list" class="resource-list"><div class="empty-state">Loading materials…</div></div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">NOTICEBOARD</p><h2>All announcements</h2></div></div>
+        <div id="all-announcements" class="announcement-list"></div>
+      </section>
+
+      <section id="rep-tools" class="section rep-section hidden">
+        <div class="section-heading"><div><p class="eyebrow">PUBLISHING TOOLS</p><h2>Representative desk</h2></div><span class="rep-tag">REP</span></div>
+        <div class="rep-actions">
+          <button id="open-announcement" class="primary-button" type="button">＋ New announcement</button>
+          <button id="open-resource" class="secondary-button" type="button">↥ Upload material</button>
+          <button id="open-subject" class="secondary-button" type="button">＋ Add subject</button>
+        </div>
+        <p class="small-note">Publishing access is checked on the server. Only Telegram IDs configured as representatives can create or remove content.</p>
+      </section>
+    </main>
+    <footer><span>Student Hub</span><span>Check dates and versions before relying on a document.</span></footer>
+  </div>
+
+  <dialog id="announcement-dialog" class="modal">
+    <form id="announcement-form" class="modal-form">
+      <div class="modal-head"><div><p class="eyebrow">NOTICEBOARD</p><h2>New announcement</h2></div><button type="button" class="close-modal" data-close="announcement-dialog" aria-label="Close">×</button></div>
+      <label>Title<input name="title" required minlength="3" maxlength="160" placeholder="e.g. Biology test date changed"></label>
+      <label>Details<textarea name="body" required maxlength="10000" rows="5" placeholder="Write the key information clearly…"></textarea></label>
+      <label>Subject (optional)<select name="subject_id" id="announcement-subject"><option value="">General / all subjects</option></select></label>
+      <div class="form-grid">
+        <label>Priority<select name="priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></label>
+        <label>Deadline (optional)<input name="deadline_at" type="datetime-local"></label>
+      </div>
+      <label>Hide after (optional)<input name="expires_at" type="datetime-local"></label>
+      <label class="checkbox-label"><input type="checkbox" name="pinned"> Keep near the top of the home screen</label>
+      <div class="modal-actions"><button type="button" class="secondary-button" data-close="announcement-dialog">Cancel</button><button class="primary-button" type="submit">Publish announcement</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="resource-dialog" class="modal">
+    <form id="resource-form" class="modal-form">
+      <div class="modal-head"><div><p class="eyebrow">STUDY LIBRARY</p><h2>Upload material</h2></div><button type="button" class="close-modal" data-close="resource-dialog" aria-label="Close">×</button></div>
+      <label>Title<input name="title" required minlength="3" maxlength="160" placeholder="e.g. Chapter 4 lecture notes"></label>
+      <label>Subject<select name="subject_id" id="resource-subject" required></select></label>
+      <label>Description (optional)<textarea name="description" maxlength="2000" rows="3" placeholder="What should students know about this file?"></textarea></label>
+      <div class="form-grid">
+        <label>Material type<select name="material_type"><option value="notes">Lecture notes</option><option value="slides">Slides</option><option value="assignment">Assignment</option><option value="past_paper">Past paper</option><option value="reading">Reading</option><option value="other">Other</option></select></label>
+        <label>Visibility priority<select name="priority"><option value="normal">Normal</option><option value="important">Important</option></select></label>
+      </div>
+      <label>File <span class="label-hint">PDF, Word, PowerPoint, Excel, TXT, JPG or PNG. Max 25 MB.</span><input name="file" type="file" required accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"></label>
+      <div class="modal-actions"><button type="button" class="secondary-button" data-close="resource-dialog">Cancel</button><button class="primary-button" type="submit">Upload and publish</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="subject-dialog" class="modal">
+    <form id="subject-form" class="modal-form">
+      <div class="modal-head"><div><p class="eyebrow">ORGANIZATION</p><h2>Add a subject</h2></div><button type="button" class="close-modal" data-close="subject-dialog" aria-label="Close">×</button></div>
+      <label>Subject name<input name="name" required maxlength="80" placeholder="e.g. Statistics"></label>
+      <label>Emoji or icon<input name="emoji" maxlength="8" value="📚" placeholder="📚"></label>
+      <label>Display order<input name="sort_order" type="number" value="0"></label>
+      <div class="modal-actions"><button type="button" class="secondary-button" data-close="subject-dialog">Cancel</button><button class="primary-button" type="submit">Add subject</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

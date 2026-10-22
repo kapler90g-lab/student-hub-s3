@@ -80,7 +80,7 @@ function verifyTelegramInitData(raw) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${key}=${value}`)
     .join('\n');
-  const secretKey = crypto.createHmac('sha256', 'WebAppData').update(process.env.BOT_TOKEN).digest();
+  const secretKey = crypto.createHmac('sha256', process.env.BOT_TOKEN).update('WebAppData').digest();
   const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
   const a = Buffer.from(calculatedHash, 'hex');
   const b = Buffer.from(receivedHash, 'hex');

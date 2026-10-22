@@ -51,6 +51,60 @@ create index if not exists announcements_feed_idx
 create index if not exists resources_subject_idx
   on public.resources (subject_id, created_at desc);
 
+-- Expected class roster plus automatic registration and last-seen tracking.
+-- Rows with expected=true represent students the representative expects in class.
+-- Students who open the Mini App are registered automatically by the server.
+create table if not exists public.student_roster (
+  telegram_id text primary key,
+  full_name text,
+  telegram_first_name text,
+  username text,
+  expected boolean not null default false,
+  registered_at timestamptz,
+  last_seen_at timestamptz,
+  added_by bigint,
+  created_at timestamptz not null default now(),
+  constraint student_roster_telegram_id_digits check (telegram_id ~ '^[0-9]{5,20}
+alter table public.subjects enable row level security;
+alter table public.announcements enable row level security;
+alter table public.resources enable row level security;
+alter table public.student_roster enable row level security;
+
+-- Private bucket. Files are served with short-lived signed URLs created by backend.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'student-files',
+  'student-files',
+  false,
+  26214400,
+  array[
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'image/jpeg',
+    'image/png'
+  ]
+)
+on conflict (id) do update set
+  public = false,
+  file_size_limit = 26214400,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Intentionally no anonymous policies. Do not put the service-role key in frontend code.
+)
+);
+
+create index if not exists student_roster_expected_idx
+  on public.student_roster (expected, full_name);
+create index if not exists student_roster_last_seen_idx
+  on public.student_roster (last_seen_at desc);
+
+
 alter table public.subjects enable row level security;
 alter table public.announcements enable row level security;
 alter table public.resources enable row level security;

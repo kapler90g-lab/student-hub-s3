@@ -139,3 +139,30 @@ footer { display: flex; justify-content: space-between; gap: 12px; padding: 22px
   .folder-stat-grid strong { font-size: 17px; }
   .search-subjects { grid-template-columns: 1fr; }
 }
+
+
+/* Weekly timetable */
+.timetable-entry { margin-top: 8px; margin-bottom: 18px; }
+.timetable-open-button { width: 100%; min-height: 50px; font-size: 15px; }
+.timetable-section { padding: 15px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); scroll-margin-top: 12px; }
+.timetable-status { margin: -5px 0 12px; }
+.timetable-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.timetable-scroll { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; border: 1px solid var(--line); border-radius: 12px; -webkit-overflow-scrolling: touch; }
+.timetable-table { width: 100%; min-width: 660px; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+.timetable-table th, .timetable-table td { min-width: 100px; padding: 10px 9px; text-align: left; vertical-align: top; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.timetable-table thead th { position: sticky; top: 0; z-index: 2; background: var(--soft); color: var(--text); font-size: 11px; font-weight: 850; }
+.timetable-table tbody th { position: sticky; left: 0; z-index: 1; min-width: 116px; background: var(--soft); }
+.timetable-table tr:last-child th, .timetable-table tr:last-child td { border-bottom: 0; }
+.timetable-table th:last-child, .timetable-table td:last-child { border-right: 0; }
+.timetable-time { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.timetable-lesson { display: block; min-height: 24px; line-height: 1.4; font-weight: 650; }
+.timetable-empty { color: var(--muted); }
+.timetable-cell-input { width: 100%; min-width: 92px; padding: 8px !important; font-size: 12px !important; }
+.timetable-error { color: var(--danger); padding: 16px !important; }
+@media (max-width: 480px) {
+  .timetable-section { padding: 10px; }
+  .timetable-table { min-width: 620px; font-size: 11px; }
+  .timetable-table th, .timetable-table td { padding: 9px 7px; }
+  .timetable-table tbody th { min-width: 100px; }
+  .timetable-toolbar button { flex: 1 1 120px; }
+}

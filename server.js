@@ -94,7 +94,15 @@ const calculatedHash = crypto
   .digest('hex');
   const a = Buffer.from(calculatedHash, 'hex');
   const b = Buffer.from(receivedHash, 'hex');
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw httpError(401, 'Telegram sign-in could not be verified. Reopen the app.');
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    // Never log initData, the received hash, or the bot token.
+    console.warn('Telegram initData HMAC mismatch', {
+      parameterNames: [...params.keys()].sort(),
+      hasSignature: params.has('signature'),
+      initDataLength: raw.length
+    });
+    throw httpError(401, 'Telegram sign-in could not be verified. Reopen the app.');
+  }
   const authDate = Number(params.get('auth_date'));
   if (!Number.isFinite(authDate) || authDate < 1 || (Date.now() / 1000) - authDate > 86400 || authDate > Date.now() / 1000 + 60) {
     throw httpError(401, 'Your Telegram session has expired. Close and reopen the app.');

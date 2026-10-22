@@ -74,13 +74,14 @@ function verifyTelegramInitData(raw) {
   const params = new URLSearchParams(raw);
   const receivedHash = params.get('hash');
   if (!receivedHash || !/^[a-f0-9]{64}$/i.test(receivedHash)) throw httpError(401, 'Telegram sign-in data is missing or invalid.');
- params.delete('hash');
- params.delete('signature');
+  // Telegram's HMAC check string excludes only "hash". Keep "signature"
+  // when present; it is excluded for the separate third-party Ed25519 flow.
+  params.delete('hash');
 
-const dataCheckString = [...params.entries()]
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([key, value]) => `${key}=${value}`)
-  .join('\n');
+  const dataCheckString = [...params.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([key, value]) => `${key}=${value}`)
+    .join('\n');
 
 const secretKey = crypto
   .createHmac('sha256', 'WebAppData')
@@ -93,7 +94,15 @@ const calculatedHash = crypto
   .digest('hex');
   const a = Buffer.from(calculatedHash, 'hex');
   const b = Buffer.from(receivedHash, 'hex');
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw httpError(401, 'Telegram sign-in could not be verified. Reopen the app.');
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    // Never log initData, the received hash, or the bot token.
+    console.warn('Telegram initData HMAC mismatch', {
+      parameterNames: [...params.keys()].sort(),
+      hasSignature: params.has('signature'),
+      initDataLength: raw.length
+    });
+    throw httpError(401, 'Telegram sign-in could not be verified. Reopen the app.');
+  }
   const authDate = Number(params.get('auth_date'));
   if (!Number.isFinite(authDate) || authDate < 1 || (Date.now() / 1000) - authDate > 86400 || authDate > Date.now() / 1000 + 60) {
     throw httpError(401, 'Your Telegram session has expired. Close and reopen the app.');

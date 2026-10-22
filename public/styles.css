@@ -139,3 +139,30 @@ footer { display: flex; justify-content: space-between; gap: 12px; padding: 22px
   .folder-stat-grid strong { font-size: 17px; }
   .search-subjects { grid-template-columns: 1fr; }
 }
+
+
+/* Representative student roster and usage report */
+.roster-admin { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 17px; }
+.roster-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 9px; }
+.roster-heading h3 { margin: 0; font-size: 17px; }
+.roster-heading .secondary-button { min-height: 38px; padding: 8px 11px; }
+.roster-help { margin: 0 0 12px; }
+.roster-summary { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin: 12px 0; }
+.roster-stat { display: flex; flex-direction: column; gap: 3px; padding: 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--card); }
+.roster-stat strong { font-size: 22px; }
+.roster-stat span { color: var(--muted); font-size: 11px; }
+.roster-form { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 9px; padding: 13px; border: 1px solid var(--line); border-radius: 15px; background: var(--card); }
+.roster-form label { display: grid; gap: 5px; font-size: 11px; font-weight: 750; }
+.roster-form button { grid-column: 1 / -1; }
+.roster-list { display: grid; gap: 8px; margin-top: 12px; }
+.roster-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 13px; background: var(--card); min-width: 0; }
+.roster-person { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.roster-person strong { font-size: 13px; overflow-wrap: anywhere; }
+.roster-person span, .roster-person small { color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
+.roster-status { flex: 0 0 auto; border-radius: 999px; padding: 5px 7px; font-size: 9px; font-weight: 850; }
+.roster-status.used { background: #d1fadf; color: #05603a; }
+.roster-status.not-used { background: #fee4e2; color: #912018; }
+.roster-status.other { background: var(--soft); color: var(--muted); }
+#roster-message.error-banner { display: block; }
+@media (min-width: 600px) { .roster-summary { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+@media (max-width: 420px) { .roster-form { grid-template-columns: 1fr; } .roster-row { align-items: flex-start; flex-direction: column; } }

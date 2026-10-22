@@ -9,6 +9,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script defer src="/app.js"></script>
   <script defer src="/features.js"></script>
+  <script defer src="/roster.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -92,6 +93,19 @@
           <button id="open-subject" class="secondary-button" type="button">＋ Add subject</button>
         </div>
         <p class="small-note">Publishing access is checked on the server. Only Telegram IDs configured as representatives can create or remove content.</p>
+
+        <div id="roster-admin" class="roster-admin">
+          <div class="roster-heading"><div><p class="eyebrow">CLASS PARTICIPATION</p><h3>Student usage</h3></div><button id="refresh-roster" type="button" class="secondary-button">Refresh</button></div>
+          <p class="muted roster-help">Add your expected class roster using each student's numeric Telegram ID. When they open Student Hub, they register automatically and their last-seen time updates.</p>
+          <div id="roster-summary" class="roster-summary"><div class="empty-state">Loading roster…</div></div>
+          <form id="roster-form" class="roster-form">
+            <label>Student name<input name="full_name" required maxlength="120" placeholder="Student's name"></label>
+            <label>Numeric Telegram ID<input name="telegram_id" required inputmode="numeric" pattern="[0-9]{5,20}" maxlength="20" placeholder="e.g. 123456789"></label>
+            <button class="primary-button" type="submit">＋ Add to class roster</button>
+          </form>
+          <p id="roster-message" class="small-note" role="status"></p>
+          <div id="roster-list" class="roster-list"><div class="empty-state">The class roster will appear here.</div></div>
+        </div>
       </section>
     </main>
     <footer><span>Student Hub</span><span>Check dates and versions before relying on a document.</span></footer>
